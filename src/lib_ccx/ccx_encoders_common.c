@@ -93,7 +93,8 @@ static const char *smptett_header = "<?xml version=\"1.0\" encoding=\"UTF-8\" st
 			"  <body>\n"
 			"    <div>\n";
 
-static const char *webvtt_header[] = {"WEBVTT","\r\n","\r\n","STYLE","\r\n","\r\n",NULL};
+static const char *webvtt_header_style[] = {"WEBVTT","\r\n","\r\n","STYLE","\r\n","\r\n",NULL};
+static const char *webvtt_header_nostyle[] = {"WEBVTT","\r\n","\r\n",NULL};
 
 static const char *simple_xml_header = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<captions>\r\n";
 
@@ -446,6 +447,7 @@ static int write_subtitle_file_header(struct encoder_ctx *ctx, struct ccx_s_writ
 			ret = write_bom(ctx, out);
 			if (ret < 0)
 				return -1;
+			const char **webvtt_header = ccx_options.use_webvtt_styling ? webvtt_header_style : webvtt_header_nostyle;
 			for(int i = 0; webvtt_header[i]!=NULL ;i++)
 			{
 				header_size += strlen(webvtt_header[i]); // Find total size of the header
