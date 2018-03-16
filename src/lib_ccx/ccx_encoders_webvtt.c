@@ -240,7 +240,7 @@ int write_webvtt_header(struct encoder_ctx *context)
 	write(context->out->fh, "##\n", 3);
 	write(context->out->fh, context->encoded_crlf, context->encoded_crlf_length);
 
-	if (context->timing->sync_pts2fts_set)
+	if (context->timing->sync_pts2fts_set && !ccx_options.webvtt_skip_ts_map)
 	{
 		char header_string[200];
 		int used;
