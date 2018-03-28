@@ -88,6 +88,7 @@ struct ccx_s_options // Options from user parameters
 	int noscte20;
 	int webvtt_create_css;
 	int webvtt_skip_ts_map;
+	int webvtt_no_line;
 	int cc_channel;                                            // Channel we want to dump in srt mode
 	int buffer_input;
 	int nofontcolor;

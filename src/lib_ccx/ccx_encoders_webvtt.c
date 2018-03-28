@@ -432,8 +432,14 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 		{
 			char timeline[128] = "";
 
-			sprintf(timeline, "%02u:%02u:%02u.%03u --> %02u:%02u:%02u.%03u line:%s%%%s",
-				h1, m1, s1, ms1, h2, m2, s2, ms2, webvtt_pac_row_percent[i], context->encoded_crlf);
+			if (ccx_options.webvtt_no_line) {
+				if (!wrote_something)
+					sprintf(timeline, "%02u:%02u:%02u.%03u --> %02u:%02u:%02u.%03u%s",
+						h1, m1, s1, ms1, h2, m2, s2, ms2, context->encoded_crlf);
+			} else {
+				sprintf(timeline, "%02u:%02u:%02u.%03u --> %02u:%02u:%02u.%03u line:%s%%%s",
+					h1, m1, s1, ms1, h2, m2, s2, ms2, webvtt_pac_row_percent[i], context->encoded_crlf);
+			}
 			used = encode_line(context, context->buffer, (unsigned char *)timeline);
 
 			dbg_print(CCX_DMT_DECODER_608, "\n- - - WEBVTT caption - - -\n");
@@ -523,14 +529,22 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 			if (written != context->encoded_crlf_length)
 				return -1;
 
-			written = write(context->out->fh, context->encoded_crlf, context->encoded_crlf_length);
-			if (written != context->encoded_crlf_length)
-				return -1;
+			if (!ccx_options.webvtt_no_line) {
+				written = write(context->out->fh, context->encoded_crlf, context->encoded_crlf_length);
+				if (written != context->encoded_crlf_length)
+					return -1;
+			}
 
 			wrote_something = 1;
 		}
 	}
 	dbg_print(CCX_DMT_DECODER_608, "- - - - - - - - - - - -\r\n");
+
+	if (ccx_options.webvtt_no_line && wrote_something) {
+		written = write(context->out->fh, context->encoded_crlf, context->encoded_crlf_length);
+		if (written != context->encoded_crlf_length)
+			return -1;
+	}
 
 	return wrote_something;
 }
