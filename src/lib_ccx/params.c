@@ -522,6 +522,7 @@ void print_usage (void)
 	mprint ("  --webvtt-create-css: Create a separate file for CSS instead of inline.\n");
 	mprint (" --webvtt-skip-ts-map: Don't emit X-TIMESTAMP-MAP in WebVTT header.\n");
 	mprint ("     --webvtt-no-line: Don't use line: positioning in WebVTT output\n");
+	mprint ("      --webvtt-no-css: Don't emit CSS style info in WebVTT output\n");
 	mprint ("              -deblev: Enable debug so the calculated distance for each two\n");
 	mprint ("                       strings is displayed. The output includes both strings,\n");
 	mprint ("                       the calculated distance, the maximum allowed distance,\n");
@@ -1696,6 +1697,11 @@ int parse_parameters (struct ccx_s_options *opt, int argc, char *argv[])
 		if (strcmp (argv[i],"--webvtt-no-line")==0)
 		{
 			opt->webvtt_no_line = 1;
+			continue;
+		}
+		if (strcmp (argv[i],"--webvtt-no-css")==0)
+		{
+			opt->webvtt_no_css = 1;
 			continue;
 		}
 		if (strcmp (argv[i],"-noru")==0 ||
