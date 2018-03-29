@@ -225,8 +225,12 @@ int write_webvtt_header(struct encoder_ctx *context)
 		char* outline_css_file = (char*)malloc((strlen(css_file_name) + strlen(webvtt_outline_css)) * sizeof(char));
 		sprintf(outline_css_file, webvtt_outline_css, css_file_name);
 		write (context->out->fh, outline_css_file, strlen(outline_css_file));
-	} else if (ccx_options.use_webvtt_styling && !ccx_options.webvtt_no_css) {
-		write(context->out->fh, webvtt_inline_css, strlen(webvtt_inline_css));
+	} else {
+		if (ccx_options.use_webvtt_styling && !ccx_options.webvtt_no_css)
+		{
+			write(context->out->fh, webvtt_inline_css, strlen(webvtt_inline_css));
+		}
+
 		if(ccx_options.enc_cfg.line_terminator_lf == 1) // If -lf parameter is set.
 		{
 			write(context->out->fh, "\n", 1);
