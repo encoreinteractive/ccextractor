@@ -225,7 +225,9 @@ int write_webvtt_header(struct encoder_ctx *context)
 		char* outline_css_file = (char*)malloc((strlen(css_file_name) + strlen(webvtt_outline_css)) * sizeof(char));
 		sprintf(outline_css_file, webvtt_outline_css, css_file_name);
 		write (context->out->fh, outline_css_file, strlen(outline_css_file));
-	} else {
+	}
+	else
+	{
 		if (ccx_options.use_webvtt_styling && !ccx_options.webvtt_no_css)
 		{
 			write(context->out->fh, webvtt_inline_css, strlen(webvtt_inline_css));
@@ -436,11 +438,14 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 		{
 			char timeline[128] = "";
 
-			if (ccx_options.webvtt_no_line) {
+			if (ccx_options.webvtt_no_line)
+			{
 				if (!wrote_something)
 					sprintf(timeline, "%02u:%02u:%02u.%03u --> %02u:%02u:%02u.%03u%s",
 						h1, m1, s1, ms1, h2, m2, s2, ms2, context->encoded_crlf);
-			} else {
+			}
+			else
+			{
 				sprintf(timeline, "%02u:%02u:%02u.%03u --> %02u:%02u:%02u.%03u line:%s%%%s",
 					h1, m1, s1, ms1, h2, m2, s2, ms2, webvtt_pac_row_percent[i], context->encoded_crlf);
 			}
@@ -533,7 +538,8 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 			if (written != context->encoded_crlf_length)
 				return -1;
 
-			if (!ccx_options.webvtt_no_line) {
+			if (!ccx_options.webvtt_no_line)
+			{
 				written = write(context->out->fh, context->encoded_crlf, context->encoded_crlf_length);
 				if (written != context->encoded_crlf_length)
 					return -1;
@@ -544,7 +550,8 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 	}
 	dbg_print(CCX_DMT_DECODER_608, "- - - - - - - - - - - -\r\n");
 
-	if (ccx_options.webvtt_no_line && wrote_something) {
+	if (ccx_options.webvtt_no_line && wrote_something)
+	{
 		written = write(context->out->fh, context->encoded_crlf, context->encoded_crlf_length);
 		if (written != context->encoded_crlf_length)
 			return -1;
