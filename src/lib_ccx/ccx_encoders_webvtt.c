@@ -504,7 +504,8 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 				}
 
 				// write current text symbol
-				write(context->out->fh, &(context->subline[j]), 1);
+				if (context->subline[j])
+					write(context->out->fh, &(context->subline[j]), 1);
 
 				if (ccx_options.use_webvtt_styling)
 				{
