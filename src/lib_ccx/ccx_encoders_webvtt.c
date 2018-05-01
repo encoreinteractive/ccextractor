@@ -457,6 +457,19 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 			if (written != used)
 				return -1;
 
+			if (ccx_options.webvtt_defaultclass)
+			{
+				written = write(context->out->fh, "<c.", strlen("<c."));
+				if (written != strlen("<c."))
+					return -1;
+				written = write(context->out->fh, ccx_options.webvtt_defaultclass, strlen(ccx_options.webvtt_defaultclass));
+				if (written != strlen(ccx_options.webvtt_defaultclass))
+					return -1;
+				written = write(context->out->fh, ">", strlen(">"));
+				if (written != strlen(">"))
+					return -1;
+			}
+
 			int length = get_line_encoded(context, context->subline, i, data);
 
 			if (context->encoding != CCX_ENC_UNICODE)
@@ -532,6 +545,13 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 			{
 				free(color_events);
 				free(font_events);
+			}
+
+			if (ccx_options.webvtt_defaultclass)
+			{
+				written = write(context->out->fh, "</c>", strlen("</c>"));
+				if (written != strlen("</c>"))
+					return -1;
 			}
 
 			written = write(context->out->fh,
