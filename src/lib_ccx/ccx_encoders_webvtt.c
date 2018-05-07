@@ -343,6 +343,26 @@ int write_cc_subtitle_as_webvtt(struct cc_subtitle *sub, struct encoder_ctx *con
 	return ret;
 }
 
+int get_utf8_byte_count(char c)
+{
+	if ((c & 0xe0) == 0xc0)
+	{
+		return 2;
+	}
+	else if ((c & 0xf0) == 0xe0)
+	{
+		return 3;
+	}
+	else if ((c & 0xf8) == 0xf0)
+	{
+		return 4;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
 void get_color_events(int *color_events, int line_num, struct eia608_screen *data)
 {
 	int first, last;
@@ -492,12 +512,23 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 			}
 
 			// Write symbol by symbol with events
-			for (int j = 0; j < length; j++)
+			int char_bytes = 0, first_byte = 0;
+			for (int j = 0, c = 0; j < length; j++)
 			{
-				if (ccx_options.use_webvtt_styling)
+				if (char_bytes == 0)
+				{
+					char_bytes = get_utf8_byte_count(context->subline[j]);
+					first_byte = 1;
+				}
+				else
+				{
+					first_byte = 0;
+				}
+
+				if (ccx_options.use_webvtt_styling && first_byte)
 				{
 					// opening events for fonts
-					int open_font = font_events[j] & 0xFF;	// Last 16 bytes
+					int open_font = font_events[c] & 0xFF;	// Last 16 bytes
 					if (open_font != FONT_REGULAR)
 					{
 						if (open_font & FONT_ITALICS)
@@ -507,7 +538,7 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 					}
 
 					// opening events for colors
-					int open_color = color_events[j] & 0xFF;	// Last 16 bytes
+					int open_color = color_events[c] & 0xFF;	// Last 16 bytes
 					if (open_color != COL_WHITE)
 					{
 						write(context->out->fh, strdup("<c."), 3);
@@ -516,21 +547,24 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 					}
 				}
 
+
 				// write current text symbol
 				if (context->subline[j])
+				{
 					write(context->out->fh, &(context->subline[j]), 1);
+				}
 
-				if (ccx_options.use_webvtt_styling)
+				if (ccx_options.use_webvtt_styling && first_byte)
 				{
 					// closing events for colors
-					int close_color = color_events[j] >> 16;	// First 16 bytes
+					int close_color = color_events[c] >> 16;	// First 16 bytes
 					if (close_color != COL_WHITE)
 					{
 						write(context->out->fh, strdup("</c>"), 4);
 					}
 
 					// closing events for fonts
-					int close_font = font_events[j] >> 16;	// First 16 bytes
+					int close_font = font_events[c] >> 16;	// First 16 bytes
 					if (close_font != FONT_REGULAR)
 					{
 						if (close_font & FONT_ITALICS)
@@ -539,6 +573,10 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 							write(context->out->fh, strdup("</u>"), 4);
 					}
 				}
+
+				--char_bytes;
+				if (char_bytes == 0)
+					c++;
 			}
 
 			if (ccx_options.use_webvtt_styling)
