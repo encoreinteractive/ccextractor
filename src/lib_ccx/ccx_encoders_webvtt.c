@@ -554,7 +554,7 @@ int write_cc_buffer_as_webvtt(struct eia608_screen *data, struct encoder_ctx *co
 					write(context->out->fh, &(context->subline[j]), 1);
 				}
 
-				if (ccx_options.use_webvtt_styling && first_byte)
+				if (ccx_options.use_webvtt_styling && char_bytes == 1)
 				{
 					// closing events for colors
 					int close_color = color_events[c] >> 16;	// First 16 bytes
